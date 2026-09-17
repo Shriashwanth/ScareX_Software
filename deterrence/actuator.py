@@ -54,20 +54,24 @@ class DeterrenceActuatorController:
         # USB Speaker Audio Control
         if speaker_cmd:
             if not self.is_playing_sound:
-                self.play_deterrence_sound()
+                sp = decision.get("primary_species", "general")
+                self.play_deterrence_sound(species=sp)
         else:
             if self.is_playing_sound:
                 self.stop_deterrence_sound()
 
-    def play_deterrence_sound(self):
-        # Refresh sound files list
-        self.sound_files = list(self.sound_dir.glob("*.wav")) + list(self.sound_dir.glob("*.mp3"))
+    def play_deterrence_sound(self, species=None):
+        # Refresh sound files list (.mp3 first, then .wav)
+        self.sound_files = sorted(list(self.sound_dir.glob("*.mp3")) + list(self.sound_dir.glob("*.wav")))
         if not self.sound_files:
             logger.warning(f"[Actuator] No deterrence sound files found in {self.sound_dir}")
             return
 
-        sound_file = self.sound_files[0]
-        logger.info(f"[Actuator] Playing Deterrence Audio: {sound_file.name}")
+        # Select sound file: rotate dynamically based on species or current timestamp
+        idx = int(time.time()) % len(self.sound_files)
+        sound_file = self.sound_files[idx]
+
+        logger.info(f"[Actuator] Playing Deterrence Audio ({species or 'General'}): {sound_file.name}")
         self.is_playing_sound = True
         self.speaker_state = True
 
