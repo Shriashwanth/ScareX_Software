@@ -25,7 +25,7 @@ class ScareXConfig:
             "imgsz": 640,
             
             # Module A — Bird Detection & Deterrence Settings
-            "vision_conf_threshold": 0.35,
+            "vision_conf_threshold": 0.25,
             "audio_conf_threshold": 0.45,
             "iou_threshold": 0.45,
             "min_consecutive_detections": 1,

@@ -26,23 +26,22 @@ class CameraBirdDetector:
         self._init_model()
 
     def _init_model(self):
-        ncnn_dir = Path(config.vision_ncnn_path)
+        coco_pt = Path("yolov8n.pt")
         pt_path = Path(config.vision_model_path)
         fallback_pt = pt_path.parent / "best.pt"
+        ncnn_dir = Path(config.vision_ncnn_path)
 
-        # 1. Attempt loading PyTorch model (best.pt or configured path)
-        for path_to_try in [pt_path, fallback_pt]:
-            if path_to_try.exists():
+        for p in [coco_pt, pt_path, fallback_pt]:
+            if p.exists():
                 try:
                     from ultralytics import YOLO
-                    self.model = YOLO(str(path_to_try))
+                    self.model = YOLO(str(p))
                     self.backend = "pytorch"
-                    logger.info(f"[CameraDetector] Loaded PyTorch 6-class bird model from {path_to_try}")
+                    logger.info(f"[CameraDetector] Loaded YOLO bird model from {p}")
                     return
                 except Exception as e:
-                    logger.warning(f"[CameraDetector] Could not load PyTorch model from {path_to_try}: {e}")
+                    logger.warning(f"[CameraDetector] Error loading {p}: {e}")
 
-        # 2. Attempt loading NCNN export
         if ncnn_dir.exists():
             try:
                 from ultralytics import YOLO
@@ -53,11 +52,10 @@ class CameraBirdDetector:
             except Exception as e:
                 logger.warning(f"[CameraDetector] Could not load NCNN model: {e}")
 
-        # 3. Attempt loading YOLO pre-trained COCO fallback
         try:
             from ultralytics import YOLO
-            self.model = YOLO("yolo11n.pt")
-            self.backend = "yolo_coco"
+            self.model = YOLO("yolov8n.pt")
+            self.backend = "pytorch"
             logger.info("[CameraDetector] Pre-trained YOLO bird detector initialized.")
             return
         except Exception as e:
@@ -107,8 +105,19 @@ class CameraBirdDetector:
                             species = "pigeon"
                         elif "sparrow" in raw_name or cls_id == 5:
                             species = "house_sparrow"
-                        elif "bird" in raw_name or cls_id == 14: # COCO bird
-                            species = "crow"
+                        elif "bird" in raw_name or cls_id == 14: # COCO bird class 14
+                            x1_b, y1_b, x2_b, y2_b = map(int, box.xyxy[0])
+                            crop = frame[max(0, y1_b):min(h, y2_b), max(0, x1_b):min(w, x2_b)]
+                            if crop.size > 0:
+                                hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+                                blue_mask = cv2.inRange(hsv, (80, 40, 40), (140, 255, 255))
+                                blue_ratio = np.sum(blue_mask > 0) / float(crop.shape[0] * crop.shape[1])
+                                if blue_ratio > 0.04:
+                                    species = "peacock"
+                                else:
+                                    species = "crow"
+                            else:
+                                species = "crow"
                         elif cls_id in self.species_map:
                             species = self.species_map[cls_id]
 
