@@ -155,8 +155,23 @@ class RealAudioClassifier:
         low_freq_energy = np.sum(fft_vals[(freqs >= 50) & (freqs <= 800)])
         high_freq_energy = np.sum(fft_vals[(freqs >= 2000) & (freqs <= 6000)])
 
+        # Check spectral flatness for noise rejection (flat noise like wind/rain/white noise)
+        spectral_flatness = float(np.exp(np.mean(np.log(fft_vals + 1e-10))) / (np.mean(fft_vals) + 1e-10))
+        if spectral_flatness > 0.35:
+            return {
+                "status": "success",
+                "is_bird": False,
+                "species": "non_bird_sound",
+                "display_name": "Non-bird Sound Detected (Environmental Noise)",
+                "confidence": 0.85,
+                "is_motorcycle": False,
+                "is_mock": False,
+                "message": "High spectral flatness detected — rejected as environmental noise."
+            }
+
         # Engine / Motorcycle ratio check
         if low_freq_energy > (high_freq_energy * 4.0) and rms_energy > 0.02:
+
             return {
                 "status": "success",
                 "is_bird": False,
