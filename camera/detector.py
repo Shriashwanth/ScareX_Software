@@ -31,16 +31,17 @@ class CameraBirdDetector:
         fallback_pt = pt_path.parent / "best.pt"
         ncnn_dir = Path(config.vision_ncnn_path)
 
-        for p in [coco_pt, pt_path, fallback_pt]:
+        # Prioritize custom trained bird models first
+        for p in [pt_path, fallback_pt]:
             if p.exists():
                 try:
                     from ultralytics import YOLO
                     self.model = YOLO(str(p))
                     self.backend = "pytorch"
-                    logger.info(f"[CameraDetector] Loaded YOLO bird model from {p}")
+                    logger.info(f"[CameraDetector] Loaded custom YOLO bird model from {p}")
                     return
                 except Exception as e:
-                    logger.warning(f"[CameraDetector] Error loading {p}: {e}")
+                    logger.warning(f"[CameraDetector] Error loading custom model {p}: {e}")
 
         if ncnn_dir.exists():
             try:
@@ -52,10 +53,20 @@ class CameraBirdDetector:
             except Exception as e:
                 logger.warning(f"[CameraDetector] Could not load NCNN model: {e}")
 
+        if coco_pt.exists():
+            try:
+                from ultralytics import YOLO
+                self.model = YOLO("yolov8n.pt")
+                self.backend = "pytorch_coco"
+                logger.info("[CameraDetector] Fallback COCO YOLO bird detector initialized.")
+                return
+            except Exception as e:
+                logger.warning(f"[CameraDetector] Could not load COCO YOLO: {e}")
+
         try:
             from ultralytics import YOLO
             self.model = YOLO("yolov8n.pt")
-            self.backend = "pytorch"
+            self.backend = "pytorch_coco"
             logger.info("[CameraDetector] Pre-trained YOLO bird detector initialized.")
             return
         except Exception as e:
@@ -81,7 +92,7 @@ class CameraBirdDetector:
         h, w = frame.shape[:2]
         detections = []
 
-        if self.backend in ["ncnn", "pytorch", "yolo_coco"] and self.model is not None:
+        if self.backend in ["ncnn", "pytorch", "pytorch_coco", "yolo_coco"] and self.model is not None:
             try:
                 results = self.model(frame, conf=self.conf_threshold, verbose=False)
                 for r in results:
@@ -92,18 +103,24 @@ class CameraBirdDetector:
                         cls_id = int(box.cls[0])
                         raw_name = str(self.model.names.get(cls_id, "")).lower() if hasattr(self.model, "names") and self.model.names else ""
 
+                        # EXPLICIT HUMAN / PERSON REJECTION SAFEGUARD
+                        # Never map a human/person detection to a bird or trigger deterrence
+                        if any(h_word in raw_name for h_word in ["person", "human", "man", "woman", "people", "face", "boy", "girl"]):
+                            logger.info(f"[CameraDetector] Filtered out human/person detection: {raw_name} ({conf:.2f})")
+                            continue
+
                         species = None
-                        if "peacock" in raw_name or cls_id == 3:
-                            species = "peacock"
-                        elif "crow" in raw_name or cls_id == 0:
+                        if "crow" in raw_name:
                             species = "crow"
-                        elif "myna" in raw_name or cls_id == 1:
+                        elif "myna" in raw_name:
                             species = "common_myna"
-                        elif "parakeet" in raw_name or "parrot" in raw_name or cls_id == 2:
+                        elif "parakeet" in raw_name or "parrot" in raw_name:
                             species = "parrot"
-                        elif "pigeon" in raw_name or cls_id == 4:
+                        elif "peacock" in raw_name:
+                            species = "peacock"
+                        elif "pigeon" in raw_name:
                             species = "pigeon"
-                        elif "sparrow" in raw_name or cls_id == 5:
+                        elif "sparrow" in raw_name:
                             species = "house_sparrow"
                         elif "bird" in raw_name or cls_id == 14: # COCO bird class 14
                             x1_b, y1_b, x2_b, y2_b = map(int, box.xyxy[0])
@@ -118,8 +135,9 @@ class CameraBirdDetector:
                                     species = "crow"
                             else:
                                 species = "crow"
-                        elif cls_id in self.species_map:
-                            species = self.species_map[cls_id]
+                        elif self.backend != "pytorch_coco":
+                            if cls_id in self.species_map:
+                                species = self.species_map[cls_id]
 
                         if species and conf >= self.conf_threshold:
                             display_name = self.display_names.get(species, species.replace("_", " ").title())
