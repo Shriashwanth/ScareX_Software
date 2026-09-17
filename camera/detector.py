@@ -93,7 +93,21 @@ class CameraBirdDetector:
         h, w = frame.shape[:2]
         detections = []
 
-        if self.backend in ["ncnn", "pytorch", "pytorch_coco", "yolo_coco"] and self.model is not None:
+    def detect_frame(self, frame):
+        """
+        Inference on a single BGR OpenCV frame.
+        Returns:
+            detections: list of dicts [{'bbox': [x1,y1,x2,y2], 'confidence': float, 'species': str, 'display_name': str}]
+            counts: dict of species counts & total count
+            annotated_frame: OpenCV BGR image
+        """
+        if frame is None:
+            return [], {"total": 0}, None
+
+        h, w = frame.shape[:2]
+        detections = []
+
+        if self.backend in ["ncnn", "pytorch", "pytorch_coco", "yolo_coco", "yolo11_coco"] and self.model is not None:
             try:
                 results = self.model(frame, conf=self.conf_threshold, verbose=False)
                 for r in results:
@@ -126,17 +140,8 @@ class CameraBirdDetector:
                         elif "bird" in raw_name or cls_id == 14: # COCO bird class 14
                             x1_b, y1_b, x2_b, y2_b = map(int, box.xyxy[0])
                             crop = frame[max(0, y1_b):min(h, y2_b), max(0, x1_b):min(w, x2_b)]
-                            if crop.size > 0:
-                                hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
-                                blue_mask = cv2.inRange(hsv, (80, 40, 40), (140, 255, 255))
-                                blue_ratio = np.sum(blue_mask > 0) / float(crop.shape[0] * crop.shape[1])
-                                if blue_ratio > 0.04:
-                                    species = "peacock"
-                                else:
-                                    species = "crow"
-                            else:
-                                species = "crow"
-                        elif self.backend != "pytorch_coco":
+                            species = self._classify_bird_crop(crop)
+                        elif self.backend not in ["pytorch_coco", "yolo11_coco", "yolo_coco"]:
                             if cls_id in self.species_map:
                                 species = self.species_map[cls_id]
 
@@ -160,6 +165,54 @@ class CameraBirdDetector:
         counts = self.count_by_species(detections)
 
         return detections, counts, annotated_frame
+
+    def _classify_bird_crop(self, crop):
+        """Classify a bird crop into one of 6 target species using HSV visual features."""
+        if crop is None or crop.size == 0:
+            return "crow"
+
+        hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+        tot_pixels = float(crop.shape[0] * crop.shape[1])
+
+        blue_mask = cv2.inRange(hsv, (85, 50, 40), (135, 255, 255))
+        blue_ratio = np.sum(blue_mask > 0) / tot_pixels
+
+        green_mask = cv2.inRange(hsv, (35, 50, 40), (85, 255, 255))
+        green_ratio = np.sum(green_mask > 0) / tot_pixels
+
+        yellow_mask = cv2.inRange(hsv, (15, 120, 120), (35, 255, 255))
+        yellow_ratio = np.sum(yellow_mask > 0) / tot_pixels
+
+        brown_mask = cv2.inRange(hsv, (8, 40, 40), (22, 220, 220))
+        brown_ratio = np.sum(brown_mask > 0) / tot_pixels
+
+        grey_mask = cv2.inRange(hsv, (0, 0, 40), (180, 40, 180))
+        grey_ratio = np.sum(grey_mask > 0) / tot_pixels
+
+        dark_ratio = np.sum(hsv[:, :, 2] < 60) / tot_pixels
+
+        # 1. House Sparrow: High brown ratio (>0.40)
+        if brown_ratio > 0.40:
+            return "house_sparrow"
+
+        # 2. Parrot: Dominant green body (>0.70 green, low dark)
+        if green_ratio > 0.70:
+            return "parrot"
+
+        # 3. Peacock: Peacock fan (high green + blue + yellow eye-spots + low brown)
+        if green_ratio > 0.40 and blue_ratio > 0.08 and brown_ratio < 0.05:
+            return "peacock"
+
+        # 4. Common Myna: Yellow eye/beak mask + brown/dark body
+        if yellow_ratio >= 0.02 and green_ratio > 0.30:
+            return "common_myna"
+
+        # 5. Pigeon: Grey plumage with slate tones (grey > 0.20 and brown < 0.40)
+        if grey_ratio > 0.20 and dark_ratio < 0.15:
+            return "pigeon"
+
+        # 6. Crow: Dark grey / black body (grey > 0.40, dark > 0.20, zero green)
+        return "crow"
 
     def detect_image_file(self, image_path):
         """Process an uploaded image file."""
