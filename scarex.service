@@ -1,0 +1,15 @@
+[Unit]
+Description=ScareX Autonomous Bird Detection & Sound Filtering System
+After=network.target sound.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/ScareX
+ExecStart=/home/pi/ScareX/run.sh
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target

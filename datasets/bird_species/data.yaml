@@ -1,0 +1,13 @@
+# ScareX 6-Class Bird Species Dataset Configuration
+path: ../datasets/bird_species
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: house_sparrow
+  1: common_myna
+  2: crow
+  3: parrot
+  4: pigeon
+  5: peacock

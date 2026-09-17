@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 5
+names: ['Common-Myna', 'Rose Ringed Parkeet', 'crow', 'peacock', 'pegion']
+
+roboflow:
+  workspace: brainkg
+  project: birds-nwtvw
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/brainkg/birds-nwtvw/dataset/1

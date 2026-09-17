@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScareX | Raspberry Pi 5 Autonomous 6-Species Bird Detection & Sound Filtering</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Navbar Header -->
+        <header class="navbar">
+            <div class="brand">
+                <div class="brand-logo">🦅</div>
+                <div class="brand-text">
+                    <h1>ScareX <span>Pi 5</span></h1>
+                    <p>6-Species Bird Recognition & Sound Filtering Engine</p>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <button class="btn btn-danger" id="btnEmergencyStop">
+                    <span class="icon">🛑</span> EMERGENCY STOP
+                </button>
+                <button class="btn btn-secondary" id="btnMute">
+                    <span class="icon">🔇</span> MUTE
+                </button>
+                <button class="btn btn-secondary" id="btnTestMode">
+                    <span class="icon">🧪</span> MANUAL TEST MODE
+                </button>
+                <div class="badge status-badge" id="sysStatusBadge">
+                    <span class="status-dot"></span> System Live
+                </div>
+            </div>
+        </header>
+
+        <!-- Real-Time Decision Banner -->
+        <section class="decision-banner-card card">
+            <div class="decision-grid">
+                <div class="dec-box">
+                    <span class="dec-label">Camera Result</span>
+                    <span class="dec-value" id="camResult">No bird</span>
+                </div>
+                <div class="dec-box">
+                    <span class="dec-label">Audio Result</span>
+                    <span class="dec-value" id="audResult">No sound</span>
+                </div>
+                <div class="dec-box">
+                    <span class="dec-label">Bird Evidence</span>
+                    <span class="badge badge-outline" id="birdEvidenceBadge">Not confirmed</span>
+                </div>
+                <div class="dec-box">
+                    <span class="dec-label">Deterrence Output</span>
+                    <span class="dec-value status-off" id="deterrenceState">OFF</span>
+                </div>
+                <div class="dec-box">
+                    <span class="dec-label">Motor Actuator</span>
+                    <span class="dec-value status-off" id="motorState">OFF</span>
+                </div>
+            </div>
+            <div class="reason-banner" id="reasonBanner">
+                <span class="icon">ℹ️</span> <span id="reasonText">System startup — waiting for camera or audio evidence.</span>
+            </div>
+        </section>
+
+        <!-- Main Dashboard Layout Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Column: Video & Media Uploads -->
+            <section class="left-column">
+                
+                <!-- Live Video Stream Card -->
+                <div class="card stream-card">
+                    <div class="card-header">
+                        <h2><span class="icon">📹</span> Live USB Webcam Feed</h2>
+                        <div class="tags">
+                            <span class="fps-tag" id="backendTag">NCNN / PyTorch</span>
+                        </div>
+                    </div>
+                    <div class="video-wrapper">
+                        <img src="{{ url_for('video_feed') }}" alt="ScareX Live Video Feed" id="videoFeed">
+                        <div class="deterrence-overlay hidden" id="deterrenceOverlay">
+                            <span class="pulse"></span> DETERRENCE ACTIVE
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Media Upload Testing Panel -->
+                <div class="card media-upload-card">
+                    <div class="card-header">
+                        <h2><span class="icon">📁</span> Image, Video & Audio Upload Testing</h2>
+                    </div>
+                    <div class="upload-tabs">
+                        <div class="upload-box">
+                            <label for="imgInput">📷 Upload Image (.jpg, .png)</label>
+                            <input type="file" id="imgInput" accept="image/*">
+                            <button class="btn btn-action" id="btnUploadImg">Detect Image</button>
+                        </div>
+                        <div class="upload-box">
+                            <label for="audInput">🎙️ Upload Audio (.wav, .mp3)</label>
+                            <input type="file" id="audInput" accept="audio/*">
+                            <button class="btn btn-action" id="btnUploadAud">Classify Audio</button>
+                        </div>
+                    </div>
+                    <div class="upload-result" id="uploadResultBox">
+                        <span>Upload media to view predictions and sound rejection logs.</span>
+                    </div>
+                </div>
+
+                <!-- Synthetic Mock Audio Generator Widget -->
+                <div class="card mock-audio-card">
+                    <div class="card-header">
+                        <h2><span class="icon">🔊</span> Synthetic Mock Audio Generator</h2>
+                        <span class="mock-warning-badge">MOCK AUDIO — SYNTHETIC TEST DATA</span>
+                    </div>
+                    <p class="mock-desc">Synthetic audio is for software testing only and is not a real bird recording.</p>
+                    
+                    <div class="mock-form">
+                        <div class="form-group">
+                            <label for="mockSpeciesSelect">Select Species / Sound Category:</label>
+                            <select id="mockSpeciesSelect">
+                                <optgroup label="Supported Bird Species">
+                                    <option value="crow" selected>Crow</option>
+                                    <option value="house_sparrow">House Sparrow</option>
+                                    <option value="common_myna">Common Myna</option>
+                                    <option value="parrot">Parrot</option>
+                                    <option value="pigeon">Pigeon</option>
+                                    <option value="peacock">Peacock</option>
+                                </optgroup>
+                                <optgroup label="Non-Bird Sound Categories">
+                                    <option value="motorcycle_engine">Motorcycle Engine Noise</option>
+                                    <option value="car_engine">Car Engine</option>
+                                    <option value="human_speech">Human Speech</option>
+                                    <option value="dog_barking">Dog Barking</option>
+                                    <option value="rain">Rain & Weather</option>
+                                    <option value="silence">Silence</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Duration:</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="mockDur" value="3.0" checked> 3s</label>
+                                <label><input type="radio" name="mockDur" value="5.0"> 5s</label>
+                                <label><input type="radio" name="mockDur" value="10.0"> 10s</label>
+                            </div>
+                        </div>
+                        <div class="mock-btn-group">
+                            <button class="btn btn-primary" id="btnGenMock">Generate Mock Audio</button>
+                            <button class="btn btn-secondary" id="btnPlayMock" disabled>Play Audio</button>
+                            <a href="#" class="btn btn-download" id="btnDlMock" style="display:none;">Download WAV</a>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Right Column: Telemetry, Manual Test Panel & History -->
+            <section class="right-column">
+                
+                <!-- 6-Species Telemetry Breakdown -->
+                <div class="card species-card">
+                    <div class="card-header">
+                        <h2><span class="icon">📊</span> 6-Species Detection Counters</h2>
+                    </div>
+                    <div class="species-grid">
+                        <div class="sp-box"><span class="sp-name">House Sparrow</span><span class="sp-val" id="cntSparrow">0</span></div>
+                        <div class="sp-box"><span class="sp-name">Common Myna</span><span class="sp-val" id="cntMyna">0</span></div>
+                        <div class="sp-box"><span class="sp-name">Crow</span><span class="sp-val" id="cntCrow">0</span></div>
+                        <div class="sp-box"><span class="sp-name">Parrot</span><span class="sp-val" id="cntParrot">0</span></div>
+                        <div class="sp-box"><span class="sp-name">Pigeon</span><span class="sp-val" id="cntPigeon">0</span></div>
+                        <div class="sp-box"><span class="sp-name">Peacock</span><span class="sp-val" id="cntPeacock">0</span></div>
+                    </div>
+                    <div class="rej-bar">
+                        <span>Motorcycle Sound Rejections: <strong id="cntMotorcycle">0</strong></span>
+                    </div>
+                </div>
+
+                <!-- Interactive Manual Test Panel -->
+                <div class="card manual-test-card">
+                    <div class="card-header">
+                        <h2><span class="icon">🧪</span> Manual Testing & Diagnostic Panel</h2>
+                    </div>
+                    <div class="test-btn-grid">
+                        <button class="btn btn-test" data-test="test_camera_crow">Test Camera Crow</button>
+                        <button class="btn btn-test" data-test="test_motorcycle_audio">Test Motorcycle Audio</button>
+                        <button class="btn btn-test" data-test="test_mock_audio_normal">Test Mock Audio (Normal)</button>
+                        <button class="btn btn-test danger" data-test="test_emergency_stop">Test Emergency Stop</button>
+                    </div>
+                    <div class="test-log-output" id="manualTestLog">
+                        <span>Click any test scenario above to execute diagnostic evaluation.</span>
+                    </div>
+                </div>
+
+                <!-- Model Health Indicators -->
+                <div class="card health-card">
+                    <div class="card-header">
+                        <h2><span class="icon">🩺</span> System & Model Health</h2>
+                    </div>
+                    <div class="health-grid">
+                        <div class="h-item"><span class="h-dot active"></span> Camera Model (NCNN/PT)</div>
+                        <div class="h-item"><span class="h-dot active"></span> Audio Classifier</div>
+                        <div class="h-item"><span class="h-dot active"></span> Mock Audio Generator</div>
+                        <div class="h-item"><span class="h-dot active"></span> SQLite Database</div>
+                    </div>
+                </div>
+
+                <!-- Reports Center -->
+                <div class="card report-card">
+                    <div class="card-header">
+                        <h2><span class="icon">📈</span> Telemetry & Rejection Reports</h2>
+                    </div>
+                    <button class="btn btn-action" id="btnGenReports">
+                        <span>🔄</span> Generate Fresh PDF & CSV Reports
+                    </button>
+                    <div class="export-row">
+                        <a href="/api/reports/download/pdf" class="btn btn-download pdf">📄 Download PDF</a>
+                        <a href="/api/reports/download/csv" class="btn btn-download csv">📊 Export CSV</a>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>ScareX Autonomous Bird Deterrence & Sound Filtering System &copy; 2026</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

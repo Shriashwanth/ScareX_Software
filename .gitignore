@@ -1,0 +1,23 @@
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+env/
+ENV/
+
+# Database & Uploads
+data/*.db
+data/detections/*
+!data/detections/.gitkeep
+data/reports/*.pdf
+data/reports/*.csv
+data/reports/*.json
+!data/reports/.gitkeep
+
+# IDE & OS Files
+.DS_Store
+.vscode/
+.idea/

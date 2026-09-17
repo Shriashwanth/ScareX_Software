@@ -1,0 +1,389 @@
+2026-08-04 22:59:22 - INFO - Hardware Mock initialized.
+2026-08-04 22:59:25 - INFO - ScarePlayer initialized.
+2026-08-04 22:59:25 - INFO - Initializing ScareX system...
+2026-08-04 22:59:25 - WARNING - YOLO model (best.pt) not found. Please train the vision model first.
+2026-08-04 22:59:25 - WARNING - Audio model not found. Please train the audio model first.
+2026-08-04 22:59:26 - INFO - Starting GUI event loop.
+2026-08-04 23:04:16 - INFO - Starting YOLOv11 training...
+2026-08-04 23:04:21 - INFO - Starting audio feature extraction...
+2026-08-04 23:04:45 - INFO - Encoding labels...
+2026-08-04 23:04:45 - INFO - Training Random Forest Classifier...
+2026-08-04 23:04:45 - INFO - Evaluating model...
+2026-08-04 23:04:45 - INFO - Classification Report:
+              precision    recall  f1-score   support
+
+        crow       1.00      1.00      1.00         1
+
+    accuracy                           1.00         1
+   macro avg       1.00      1.00      1.00         1
+weighted avg       1.00      1.00      1.00         1
+
+2026-08-04 23:04:45 - INFO - Audio model trained and saved successfully.
+2026-08-04 23:05:52 - INFO - Model successfully trained and saved to C:\Users\Ashwanth\Downloads\ScareX\models\best.pt
+2026-08-04 23:07:03 - INFO - Hardware Mock initialized.
+2026-08-04 23:07:04 - INFO - ScarePlayer initialized.
+2026-08-04 23:07:08 - INFO - --- STARTING AUTOMATED HEADLESS TEST ---
+2026-08-04 23:07:08 - INFO - YOLOv11 model loaded successfully.
+2026-08-04 23:07:10 - INFO - Audio model and label encoder loaded successfully.
+2026-08-04 23:07:10 - INFO - Decision engine started.
+2026-08-04 23:07:10 - INFO - Simulating an Audio detection (Confidence 0.95)
+2026-08-04 23:07:10 - INFO - [SCARE_ACTIVATED] Bird: Crow, Confidence: 0.95
+2026-08-04 23:07:10 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:07:10 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:07:10 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:07:10 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:07:11 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:07:15 - INFO - Simulating a Vision detection (Confidence 0.88)
+2026-08-04 23:07:15 - INFO - [SCARE_ACTIVATED] Bird: Peacock, Confidence: 0.88
+2026-08-04 23:07:15 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:07:15 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:07:15 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:07:15 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:07:16 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:07:20 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:07:20 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:07:20 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:07:20 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:07:20 - INFO - Decision engine stopped.
+2026-08-04 23:07:20 - INFO - --- AUTOMATED TEST COMPLETE ---
+2026-08-04 23:07:25 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:07:25 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:10:24 - INFO - Hardware Mock initialized.
+2026-08-04 23:10:24 - INFO - ScarePlayer initialized.
+2026-08-04 23:10:25 - INFO - Initializing ScareX system...
+2026-08-04 23:10:25 - INFO - YOLOv11 model loaded successfully.
+2026-08-04 23:10:27 - INFO - Audio model and label encoder loaded successfully.
+2026-08-04 23:10:27 - INFO - Starting GUI event loop.
+2026-08-04 23:14:53 - INFO - ScarePlayer initialized.
+2026-08-04 23:14:53 - INFO - Hardware Mock initialized.
+2026-08-04 23:14:53 - INFO - Loading image for demo: C:\Users\Ashwanth\.gemini\antigravity-ide\brain\06e819c5-87d9-458b-a77d-c0edaf7b4e1c\demo_bird_1785865417122.png
+2026-08-04 23:14:53 - INFO - Loading pre-trained YOLO11n model to simulate the real detection...
+2026-08-04 23:14:57 - INFO - Saved annotated frame to C:\Users\Ashwanth\.gemini\antigravity-ide\brain\06e819c5-87d9-458b-a77d-c0edaf7b4e1c\demo_output.jpg
+2026-08-04 23:14:57 - INFO - Bird detected with 94.2% confidence!
+2026-08-04 23:14:57 - INFO - Triggering Scare Sequence...
+2026-08-04 23:14:57 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:14:57 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:14:57 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:25:32 - INFO - Hardware Mock initialized.
+2026-08-04 23:25:33 - INFO - ScarePlayer initialized.
+2026-08-04 23:25:33 - INFO - Initializing ScareX system...
+2026-08-04 23:25:33 - INFO - YOLOv11 model loaded successfully.
+2026-08-04 23:25:36 - INFO - Audio model and label encoder loaded successfully.
+2026-08-04 23:25:36 - INFO - Starting GUI event loop.
+2026-08-04 23:26:21 - INFO - Hardware Mock initialized.
+2026-08-04 23:26:22 - INFO - ScarePlayer initialized.
+2026-08-04 23:26:22 - INFO - Initializing ScareX system...
+2026-08-04 23:26:22 - INFO - YOLOv11 model loaded successfully.
+2026-08-04 23:26:24 - INFO - Audio model and label encoder loaded successfully.
+2026-08-04 23:26:24 - INFO - Starting GUI event loop.
+2026-08-04 23:26:25 - INFO - Audio recognition started.
+2026-08-04 23:26:25 - INFO - Decision engine started.
+2026-08-04 23:26:25 - INFO - System started via GUI.
+2026-08-04 23:26:34 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:26:34 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:26:34 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:26:34 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:26:34 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:26:35 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:39 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:26:39 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:26:39 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:26:39 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:26:39 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:26:40 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:44 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:44 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:26:44 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:26:44 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:26:44 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:26:44 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:26:44 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:26:45 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:49 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:49 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:26:49 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:26:49 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:26:49 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:26:49 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:26:49 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:26:50 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:54 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:54 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:26:54 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:26:54 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:26:54 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:26:54 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:26:54 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:26:55 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:58 - INFO - Vision detection started.
+2026-08-04 23:26:59 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:26:59 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:26:59 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:26:59 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:26:59 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:26:59 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:26:59 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:00 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:04 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:04 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:04 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:04 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:04 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:27:04 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:27:04 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:05 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:09 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:09 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:09 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:09 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:09 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:27:09 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:27:09 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:10 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:14 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:14 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:14 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:14 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:14 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:27:14 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:27:14 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:15 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:19 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:19 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:19 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:19 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:19 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:27:19 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:27:19 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:20 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:24 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:24 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:24 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:24 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:24 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:27:24 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:27:24 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:25 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:29 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:29 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:29 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:29 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:29 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:27:29 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:27:29 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:30 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:34 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:34 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:34 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:34 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:34 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:27:34 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:27:34 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:35 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:39 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:39 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:39 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:39 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:39 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:27:39 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:27:39 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:40 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:44 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:44 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:44 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:44 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:44 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:27:44 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:27:44 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:45 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:49 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:49 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:49 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:49 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:49 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:27:49 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:27:49 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:50 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:54 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:54 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:54 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:54 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:54 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:27:54 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:27:54 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:27:55 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:59 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:27:59 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:27:59 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:27:59 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:27:59 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:27:59 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:27:59 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:00 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:04 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:04 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:04 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:04 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:04 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:28:04 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:28:04 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:05 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:09 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:09 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:09 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:09 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:09 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:28:09 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:28:09 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:10 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:14 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:14 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:14 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:14 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:14 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:28:14 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:28:14 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:15 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:19 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:19 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:19 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:19 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:19 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:28:19 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:28:19 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:20 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:24 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:24 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:24 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:24 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:24 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:28:24 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:28:24 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:25 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:29 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:29 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:29 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:29 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:29 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:28:29 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:28:29 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:30 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:34 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:34 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:34 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:34 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:34 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:28:34 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:28:34 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:35 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:39 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:39 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:39 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:39 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:39 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:28:39 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:28:39 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:40 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:44 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:44 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:44 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:44 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:44 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:28:44 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:28:44 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:45 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:49 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:49 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:49 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:49 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:49 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:28:49 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:28:49 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:50 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:54 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:54 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:54 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:54 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:54 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:28:54 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:28:54 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:28:55 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:59 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:28:59 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:28:59 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:28:59 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:28:59 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:28:59 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:28:59 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:00 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:04 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:04 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:04 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:04 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:04 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:29:04 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:29:05 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:05 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:09 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:09 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:09 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:09 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:09 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:29:09 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:29:10 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:10 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:14 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:14 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:14 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:14 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:14 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:29:14 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:29:15 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:15 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:19 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:19 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:19 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:19 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:19 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:29:19 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:29:20 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:20 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:24 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:24 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:24 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:24 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:24 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:29:24 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:29:25 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:25 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:29 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:29 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:29 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:29 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:29 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:29:29 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:29:30 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:30 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:34 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:34 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:34 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:34 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:34 - INFO - Playing scare sound: mock_scare1.wav at volume 1.0
+2026-08-04 23:29:34 - INFO - [SCARE_SOUND] Played: mock_scare1.wav
+2026-08-04 23:29:35 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:35 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:39 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:39 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:39 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:39 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:39 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:29:39 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:29:40 - INFO - [HARDWARE] Action: Flapping Wings
+2026-08-04 23:29:40 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:44 - INFO - [HARDWARE] Action: Stop
+2026-08-04 23:29:44 - INFO - Scare mode deactivated. System ready.
+2026-08-04 23:29:44 - INFO - [SCARE_ACTIVATED] Bird: crow, Confidence: 1.00
+2026-08-04 23:29:44 - INFO - [HARDWARE] Action: Rotating Camera towards target
+2026-08-04 23:29:44 - INFO - Playing scare sound: mock_scare2.wav at volume 1.0
+2026-08-04 23:29:44 - INFO - [SCARE_SOUND] Played: mock_scare2.wav
+2026-08-04 23:29:45 - INFO - [HARDWARE] Action: Flapping Wings
