@@ -25,10 +25,10 @@ class ScareXConfig:
             "imgsz": 640,
             
             # Module A — Bird Detection & Deterrence Settings
-            "vision_conf_threshold": 0.45,
-            "audio_conf_threshold": 0.50,
+            "vision_conf_threshold": 0.35,
+            "audio_conf_threshold": 0.45,
             "iou_threshold": 0.45,
-            "min_consecutive_detections": 2,
+            "min_consecutive_detections": 1,
             "cooldown_sec": 5.0,
             "deterrence_duration_sec": 3.0,
             "max_repeat_triggers": 5,
@@ -45,8 +45,8 @@ class ScareXConfig:
             "total_rows": 4,
 
             # Paths
-            "vision_model_path": os.path.join(base_dir, "models", "bird_species_model.pt"),
-            "vision_ncnn_path": os.path.join(base_dir, "models", "bird_species_ncnn"),
+            "vision_model_path": os.path.join(base_dir, "models", "best.pt"),
+            "vision_ncnn_path": os.path.join(base_dir, "models", "best_ncnn_model"),
             "tomato_model_path": os.path.join(base_dir, "models", "tomato_model.pt"),
             "tomato_ncnn_path": os.path.join(base_dir, "models", "tomato_ncnn_model"),
             "audio_model_path": os.path.join(base_dir, "models", "audio_species_model.pth"),

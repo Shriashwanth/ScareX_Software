@@ -28,8 +28,21 @@ class CameraBirdDetector:
     def _init_model(self):
         ncnn_dir = Path(config.vision_ncnn_path)
         pt_path = Path(config.vision_model_path)
+        fallback_pt = pt_path.parent / "best.pt"
 
-        # 1. Attempt loading NCNN native / ultralytics export
+        # 1. Attempt loading PyTorch model (best.pt or configured path)
+        for path_to_try in [pt_path, fallback_pt]:
+            if path_to_try.exists():
+                try:
+                    from ultralytics import YOLO
+                    self.model = YOLO(str(path_to_try))
+                    self.backend = "pytorch"
+                    logger.info(f"[CameraDetector] Loaded PyTorch 6-class bird model from {path_to_try}")
+                    return
+                except Exception as e:
+                    logger.warning(f"[CameraDetector] Could not load PyTorch model from {path_to_try}: {e}")
+
+        # 2. Attempt loading NCNN export
         if ncnn_dir.exists():
             try:
                 from ultralytics import YOLO
@@ -40,18 +53,16 @@ class CameraBirdDetector:
             except Exception as e:
                 logger.warning(f"[CameraDetector] Could not load NCNN model: {e}")
 
-        # 2. Attempt loading PyTorch fallback
-        if pt_path.exists():
-            try:
-                from ultralytics import YOLO
-                self.model = YOLO(str(pt_path))
-                self.backend = "pytorch"
-                logger.info(f"[CameraDetector] Loaded PyTorch 6-class bird model from {pt_path}")
-                return
-            except Exception as e:
-                logger.warning(f"[CameraDetector] Could not load PyTorch model: {e}")
+        # 3. Attempt loading YOLO pre-trained COCO fallback
+        try:
+            from ultralytics import YOLO
+            self.model = YOLO("yolo11n.pt")
+            self.backend = "yolo_coco"
+            logger.info("[CameraDetector] Pre-trained YOLO bird detector initialized.")
+            return
+        except Exception as e:
+            logger.warning(f"[CameraDetector] Could not load YOLO fallback: {e}")
 
-        # 3. Demo / Heuristic fallback when weight files are not pre-trained
         self.backend = "demo_heuristic"
         logger.info("[CameraDetector] Model files not found. Initialized 6-Class Heuristic Detection Engine.")
 
@@ -72,7 +83,7 @@ class CameraBirdDetector:
         h, w = frame.shape[:2]
         detections = []
 
-        if self.backend in ["ncnn", "pytorch"] and self.model is not None:
+        if self.backend in ["ncnn", "pytorch", "yolo_coco"] and self.model is not None:
             try:
                 results = self.model(frame, conf=self.conf_threshold, verbose=False)
                 for r in results:
@@ -81,25 +92,39 @@ class CameraBirdDetector:
                     for box in r.boxes:
                         conf = float(box.conf[0])
                         cls_id = int(box.cls[0])
+                        raw_name = str(self.model.names.get(cls_id, "")).lower() if hasattr(self.model, "names") and self.model.names else ""
 
-                        if cls_id in self.species_map and conf >= self.conf_threshold:
+                        species = None
+                        if "peacock" in raw_name or cls_id == 3:
+                            species = "peacock"
+                        elif "crow" in raw_name or cls_id == 0:
+                            species = "crow"
+                        elif "myna" in raw_name or cls_id == 1:
+                            species = "common_myna"
+                        elif "parakeet" in raw_name or "parrot" in raw_name or cls_id == 2:
+                            species = "parrot"
+                        elif "pigeon" in raw_name or cls_id == 4:
+                            species = "pigeon"
+                        elif "sparrow" in raw_name or cls_id == 5:
+                            species = "house_sparrow"
+                        elif "bird" in raw_name or cls_id == 14: # COCO bird
+                            species = "crow"
+                        elif cls_id in self.species_map:
                             species = self.species_map[cls_id]
+
+                        if species and conf >= self.conf_threshold:
                             display_name = self.display_names.get(species, species.replace("_", " ").title())
-                        else:
-                            species = "unknown_bird"
-                            display_name = "Unknown Bird"
+                            x1, y1, x2, y2 = map(int, box.xyxy[0])
+                            x1, y1 = max(0, x1), max(0, y1)
+                            x2, y2 = min(w, x2), min(h, y2)
 
-                        x1, y1, x2, y2 = map(int, box.xyxy[0])
-                        x1, y1 = max(0, x1), max(0, y1)
-                        x2, y2 = min(w, x2), min(h, y2)
-
-                        detections.append({
-                            "bbox": [x1, y1, x2, y2],
-                            "confidence": round(conf, 3),
-                            "species": species,
-                            "display_name": display_name,
-                            "class_id": cls_id
-                        })
+                            detections.append({
+                                "bbox": [x1, y1, x2, y2],
+                                "confidence": round(conf, 3),
+                                "species": species,
+                                "display_name": display_name,
+                                "class_id": cls_id
+                            })
             except Exception as e:
                 logger.error(f"[CameraDetector] Inference error: {e}")
 

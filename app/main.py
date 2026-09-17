@@ -1,9 +1,15 @@
 import os
+import sys
 import time
 import logging
 from pathlib import Path
 from datetime import datetime
-from flask import Flask, render_template, Response, jsonify, request, send_file, werkzeug
+import werkzeug.utils
+from flask import Flask, render_template, Response, jsonify, request, send_file
+
+# Add project root and module path to sys.path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 try:
     from ScareX.config import config
@@ -73,20 +79,19 @@ def init_camera():
         import cv2
         idx = config.camera_index
         camera_cap = cv2.VideoCapture(idx)
-        if not camera_cap.isOpened() and isinstance(idx, int):
-            camera_cap = cv2.VideoCapture(idx, cv2.CAP_V4L2)
         camera_connected = camera_cap.isOpened()
         if camera_connected:
             camera_cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.frame_width)
             camera_cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.frame_height)
             logger.info(f"[App] USB Webcam opened on index {idx}.")
         else:
-            logger.warning(f"[App] Could not open USB webcam at index {idx}.")
+            logger.warning(f"[App] USB webcam offline or unavailable at index {idx}.")
     except Exception as e:
-        logger.error(f"[App] Error opening camera: {e}")
+        logger.error(f"[App] Error initializing camera: {e}")
         camera_connected = False
 
-init_camera()
+import threading
+threading.Thread(target=init_camera, daemon=True).start()
 
 def process_media_item(module, source, model_version, conf, status="success", err_msg=""):
     """Unified Media Processing Layer standard schema."""
