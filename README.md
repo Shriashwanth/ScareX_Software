@@ -1,19 +1,33 @@
-# ScareX: Autonomous Bird Detection, Sound Filtering & Deterrence System
+# ScareX: Autonomous Bird Deterrence & Tomato Crop Monitoring Platform
 
 **Target Hardware**: Raspberry Pi 5 (Raspberry Pi OS 64-bit, Bookworm)  
-**Supported Sensors & Actuators**: USB Webcam, USB Speakers, Motors/Servos/LEDs (No motor active during default/safe states)
+**Sensors & Actuators**: USB Webcam, USB Speakers, Motor Actuators, SQLite Database
 
 ---
 
 ## 🌟 System Overview
 
-**ScareX** is a production-grade, edge-AI autonomous crop protection system designed for Raspberry Pi 5. It integrates **6-class vision bird species recognition**, **real audio classification with non-bird sound rejection (motorcycle/engine/speech filtering)**, **synthetic mock audio generation**, **central 7-tier decision engine with safety priority chain**, **manual testing panel**, and **automated PDF/CSV report generation**.
+**ScareX** is a production-grade, edge-AI platform for autonomous crop protection and crop monitoring designed for Raspberry Pi 5. It integrates two complete modules into a single unified web platform:
+
+- **Module A — Bird Species Detection, Noise Filtering & Sound Deterrence**:
+  - 6-Class Vision Bird Species Recognition (`house_sparrow`, `common_myna`, `crow`, `parrot`, `pigeon`, `peacock`)
+  - Real Audio Classification with Non-Bird Noise Rejection (Motorcycle engine, speech, rain, weather)
+  - Synthetic Mock Audio Generator with prominent synthetic warnings
+  - 7-Tier Central Decision Engine with safety priority chain
+  - Motor & Speaker Actuator Control with default OFF safeguards
+- **Module B — Tomato Crop Monitoring & Maturity Classification**:
+  - 3-Class Tomato Maturity Detector (`b_green`, `b_half_ripened`, `b_fully_ripened`)
+  - 6 Crop Condition States Engine (`Healthy`, `Ripening Stage`, `Harvest Ready`, `Early Growth`, `Crop Monitoring Required`, `Insufficient Data`)
+  - Row-Wise Harvesting Priority Engine (`Low`, `Medium`, `High`, `Critical`)
+  - Row statistics logging and action recommendations
+- **12-Tab Multi-Module Dark Theme Web Dashboard**:
+  - `1. Overview`, `2. Bird Detection`, `3. Bird Audio`, `4. Mock Audio Testing`, `5. Bird Deterrence`, `6. Tomato Recognition`, `7. Crop Condition`, `8. Row Priority`, `9. Detection History`, `10. Reports`, `11. Settings`, `12. System Health`
+- **Unified PDF & CSV Report Generator**:
+  - Exports combined executive reports and full raw telemetry datasets
 
 ---
 
-## 🦅 1. Supported 6 Bird Species
-
-Both vision and audio detection models classify across these 6 target species:
+## 🦅 Module A: 6-Class Bird Species
 
 | Class ID | Class Name | Display Name |
 | :--- | :--- | :--- |
@@ -24,48 +38,42 @@ Both vision and audio detection models classify across these 6 target species:
 | `4` | `pigeon` | Pigeon |
 | `5` | `peacock` | Peacock |
 
-> **Low Confidence / Unmapped Class Handling**: Displays `Unknown Bird` (or `Unknown Sound`) when confidence falls below the configured threshold.
+---
+
+## 🍅 Module B: 3-Class Tomato Maturity & 6 Crop Condition States
+
+### Maturity Classes
+
+| Class ID | Class Name | Display Name |
+| :--- | :--- | :--- |
+| `0` | `b_fully_ripened` | Fully Ripened |
+| `1` | `b_half_ripened` | Half Ripened |
+| `2` | `b_green` | Green |
+
+### 6 Crop Condition States
+
+1. **State 1 — Healthy / Normal**: Balanced tomato maturity across stages.
+2. **State 2 — Ripening Stage**: >35% half-ripened tomatoes.
+3. **State 3 — Harvest Ready**: >40% fully-ripened tomatoes.
+4. **State 4 — Early Growth / Mostly Green**: >60% green tomatoes.
+5. **State 5 — Crop Monitoring Required**: Average detection confidence <40% or sparse density.
+6. **State 6 — Insufficient Data**: Camera offline or 0 tomatoes detected.
 
 ---
 
-## 🔊 2. Sound Rejection & Non-Bird Filtering
-
-The audio model explicitly filters non-bird sounds:
-- **Motorcycle Engine Sound** (Returns `Motorcycle Engine Sound` -> **Deterrence OFF**)
-- Car Engine / Truck Engine / Tractor Engine
-- Human Speech / Shouting
-- Dog Barking / Cat Sound
-- Rain / Wind / Thunder / Weather
-- Construction Noise / Machine Noise
-- Music / Silence
-
-> **Safety Rule**: Motorcycle engine sounds and environmental noises will **NEVER** trigger deterrence audio or motor activation.
-
----
-
-## 🛡️ 3. Central Decision Engine & Priority Chain
-
-The decision engine evaluates camera and audio inputs according to a strict 7-tier priority chain:
+## 🛡️ 7-Tier Central Decision Engine
 
 1. **Emergency Stop** (Highest Priority -> ALL Actuators OFF immediately)
-2. **Mute State** (Deterrence Audio Muted -> Motor safety policy)
-3. **Manual Test Mode** (User-driven simulation override)
-4. **Real Camera Bird Detection** (Confirmed 6-class bird above threshold -> Deterrence ON, Motor ON)
-5. **Real Audio Bird Detection** (Confirmed 6-class bird sound above threshold -> Deterrence ON, Motor ON)
-6. **Mock Audio Test Detection** (Ignored in normal operation -> Deterrence OFF by default)
-7. **No Detection / Non-Bird Sound / Error** (Deterrence OFF, Motor OFF)
+2. **Mute State** (Deterrence Audio Muted)
+3. **Manual Test Mode** (Simulation override for synthetic audio testing)
+4. **Real Camera Bird Detection** (Confirmed bird -> Deterrence ON, Motor ON)
+5. **Real Audio Bird Detection** (Confirmed bird sound -> Deterrence ON, Motor ON)
+6. **Mock Audio Test Detection** (Ignored in normal mode -> Deterrence OFF)
+7. **Default Safety State** (All actuators OFF)
 
 ---
 
-## 🔊 4. Synthetic Mock Audio Generator
-
-- Generates synthetic WAV audio files stored in `data/mock_audio/`.
-- Prominently displays `MOCK AUDIO — SYNTHETIC TEST DATA` badges.
-- **Default Behavior**: `Mock Audio -> Deterrence OFF` (Activates deterrence ONLY when `Manual Test Mode` is enabled).
-
----
-
-## 🏗️ 5. Project Directory Structure
+## 🏗️ Project Directory Structure
 
 ```text
 ScareX/
@@ -79,6 +87,12 @@ ScareX/
 │   ├── __init__.py
 │   ├── real_audio.py        # Real Audio Classification & Noise Rejection
 │   └── mock_audio.py        # Synthetic Mock Audio Generator
+├── tomato/
+│   ├── __init__.py
+│   ├── detector.py          # 3-Class Tomato Maturity Detector
+│   ├── maturity.py          # Maturity Ratio Analyzer
+│   ├── crop_state.py        # 6 Crop Condition States Engine
+│   └── row_priority.py      # Row-Wise Priority Engine
 ├── deterrence/
 │   ├── __init__.py
 │   ├── decision_engine.py   # Central 7-Tier Safety Priority Engine
@@ -86,44 +100,28 @@ ScareX/
 │   └── multimodal.py        # Multimodal Fusion Telemetry Engine
 ├── dashboard/
 │   ├── __init__.py
-│   ├── reports.py           # PDF & CSV Telemetry & Rejection Reports
+│   ├── reports.py           # PDF & CSV Telemetry & Crop Reports
 │   ├── templates/
-│   │   └── index.html       # Responsive Dark-Theme Web Dashboard UI
+│   │   └── index.html       # 12-Tab Web Dashboard UI
 │   └── static/
 │       ├── style.css
 │       └── script.js
 ├── database/
 │   ├── __init__.py
-│   └── manager.py           # SQLite Telemetry, Prediction Mode & Reason Logger
-├── datasets/
-│   └── bird_species/
-│       └── data.yaml        # 6-Class Dataset Configuration
-├── data/
-│   ├── mock_audio/          # Synthetic WAV test files
-│   ├── detections/        # Media uploads
-│   └── reports/           # PDF & CSV report outputs
-├── scripts/
-│   ├── train_vision.py      # Vision model training script
-│   ├── val_vision.py        # Evaluation (Precision, Recall, mAP, F1)
-│   ├── export_ncnn.py       # NCNN model converter for RPi 5
-│   ├── test_camera.py       # USB webcam diagnostic
-│   ├── test_mic.py          # USB microphone diagnostic
-│   ├── test_speaker.py      # USB speaker test
-│   └── test_inference.py    # Benchmark latency test
+│   └── manager.py           # SQLite Dual-Module Telemetry Database Manager
 ├── tests/
-│   └── test_scarex.py       # Comprehensive Automated Test Suite
+│   └── test_scarex.py       # 12-Module Automated Test Suite
 ├── config.py                # Global configuration settings
 ├── requirements.txt         # Python package dependencies
 ├── install.sh               # Raspberry Pi 5 automated setup script
 ├── run.sh                   # Execution launcher
-├── scarex.service           # Systemd autostart unit file
-├── README.md                # Documentation
-└── LICENSE                  # MIT License
+├── PROJECT_EXPLANATION.md   # Comprehensive System Architectural Report
+└── README.md                # System Documentation
 ```
 
 ---
 
-## 🚀 6. Quick Start Guide for Raspberry Pi 5
+## 🚀 Quick Start Guide for Raspberry Pi 5
 
 ### 1. Installation
 
@@ -143,7 +141,7 @@ python tests/test_scarex.py
 ### 3. Launching Web Dashboard
 
 ```bash
-./run.sh
+python app/main.py
 ```
 
 Navigate to `http://<raspberry-pi-ip>:5000` in your web browser.

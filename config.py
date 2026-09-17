@@ -16,7 +16,15 @@ class ScareXConfig:
     def _load_defaults(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         return {
+            # System Settings
             "camera_index": 0,
+            "flask_port": 5000,
+            "dashboard_host": "0.0.0.0",
+            "frame_width": 640,
+            "frame_height": 480,
+            "imgsz": 640,
+            
+            # Module A — Bird Detection & Deterrence Settings
             "vision_conf_threshold": 0.45,
             "audio_conf_threshold": 0.50,
             "iou_threshold": 0.45,
@@ -24,18 +32,23 @@ class ScareXConfig:
             "cooldown_sec": 5.0,
             "deterrence_duration_sec": 3.0,
             "max_repeat_triggers": 5,
-            "flask_port": 5000,
-            "dashboard_host": "0.0.0.0",
-            "frame_width": 640,
-            "frame_height": 480,
-            "imgsz": 640,
-            "audio_sample_rate": 22050,
-            "audio_duration_sec": 3.0,
             "manual_test_mode": False,
             "mute_mode": False,
             "emergency_stop": False,
+            
+            # Module B — Tomato Monitoring Settings
+            "tomato_conf_threshold": 0.45,
+            "harvest_ready_threshold": 0.40,      # >40% fully ripened -> Harvest Ready
+            "ripening_stage_threshold": 0.35,     # >35% half ripened -> Ripening Stage
+            "early_growth_threshold": 0.60,      # >60% green -> Early Growth
+            "low_conf_warning_threshold": 0.40,  # <40% avg conf -> Monitoring Required
+            "total_rows": 4,
+
+            # Paths
             "vision_model_path": os.path.join(base_dir, "models", "bird_species_model.pt"),
             "vision_ncnn_path": os.path.join(base_dir, "models", "bird_species_ncnn"),
+            "tomato_model_path": os.path.join(base_dir, "models", "tomato_model.pt"),
+            "tomato_ncnn_path": os.path.join(base_dir, "models", "tomato_ncnn_model"),
             "audio_model_path": os.path.join(base_dir, "models", "audio_species_model.pth"),
             "sound_dir": os.path.join(base_dir, "sounds"),
             "db_path": os.path.join(base_dir, "data", "scarex.db"),
@@ -73,7 +86,7 @@ class ScareXConfig:
                 self.config[k] = v
         self.save()
 
-    # Species and Class Definitions
+    # Module A Species Mappings
     BIRD_SPECIES_MAP = {
         0: "house_sparrow",
         1: "common_myna",
@@ -81,6 +94,13 @@ class ScareXConfig:
         3: "parrot",
         4: "pigeon",
         5: "peacock"
+    }
+
+    # Module B Tomato Mappings
+    TOMATO_CLASS_MAP = {
+        0: "b_fully_ripened",
+        1: "b_half_ripened",
+        2: "b_green"
     }
 
     DISPLAY_NAMES = {
@@ -91,6 +111,9 @@ class ScareXConfig:
         "pigeon": "Pigeon",
         "peacock": "Peacock",
         "unknown_bird": "Unknown Bird",
+        "b_fully_ripened": "Fully Ripened",
+        "b_half_ripened": "Half Ripened",
+        "b_green": "Green",
         "non_bird_sound": "Non-bird Sound Detected",
         "motorcycle_engine": "Motorcycle Engine Sound",
         "unknown_sound": "Unknown Sound"
@@ -102,6 +125,18 @@ class ScareXConfig:
         "rain", "wind", "thunder", "construction_noise", "machine_noise",
         "music", "silence", "unknown_environmental_sound"
     ]
+
+    @property
+    def bird_classes(self):
+        return list(self.BIRD_SPECIES_MAP.values())
+
+    @property
+    def tomato_classes(self):
+        return list(self.TOMATO_CLASS_MAP.values())
+
+    @property
+    def hardware_target(self):
+        return "Raspberry Pi 5"
 
     def __getattr__(self, name):
         name_lower = name.lower()

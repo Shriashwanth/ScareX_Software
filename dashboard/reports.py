@@ -14,42 +14,46 @@ logger = logging.getLogger("ScareX.Reports")
 
 class ScareXReportGenerator:
     """
-    Generates PDF and CSV reports for ScareX 6-class bird detection,
-    sound rejection stats (motorcycle/vehicle noise filtering), manual test results, and deterrence history.
+    Unified PDF and CSV Report Generator supporting:
+    - Bird Report (Module A)
+    - Tomato Report (Module B)
+    - Combined ScareX Report (Modules A & B)
     """
     def __init__(self, db_manager):
         self.db = db_manager
         self.reports_dir = Path(config.reports_dir)
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
-    def generate_all_reports(self):
-        stats = self.db.get_summary_stats()
-        history = self.db.get_recent_history(limit=50)
-        test_logs = self.db.get_manual_test_logs(limit=50)
+    def generate_all_reports(self, bird_stats=None, tomato_metrics=None, crop_state=None, rows_stats=None):
         timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+        summary_stats = self.db.get_summary_stats()
+        history = self.db.get_recent_history(limit=30)
+        crop_states = self.db.get_recent_crop_states(limit=5)
 
-        csv_path = self.generate_csv(stats, history, test_logs, timestamp_str)
-        pdf_path = self.generate_pdf(stats, history, test_logs, timestamp_str)
+        csv_path = self.generate_csv(summary_stats, history, crop_states, tomato_metrics, rows_stats, timestamp_str)
+        pdf_path = self.generate_pdf(summary_stats, history, crop_states, tomato_metrics, crop_state, rows_stats, timestamp_str)
 
         return {
             "timestamp": timestamp_str,
             "csv": str(csv_path),
             "pdf": str(pdf_path),
-            "stats": stats
+            "stats": summary_stats
         }
 
-    def generate_csv(self, stats, history, test_logs, timestamp_str):
+    def generate_csv(self, stats, history, crop_states, tomato_metrics, rows_stats, timestamp_str):
         latest_file = self.reports_dir / "latest_report.csv"
         dated_file = self.reports_dir / f"scarex_report_{timestamp_str}.csv"
 
         rows = [
-            ["ScareX System Telemetry & Sound Rejection Summary"],
+            ["ScareX Combined Telemetry & Crop Protection Report"],
             ["Generated At", datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
+            [],
+            ["--- MODULE A: BIRD DETECTION & DETERRENCE ---"],
             ["Confirmed Bird Detections", stats.get("total_birds_confirmed", 0)],
             ["Total Deterrence Triggers", stats.get("total_deterrence_triggers", 0)],
-            ["Motorcycle Engine Sound Rejections", stats.get("motorcycle_rejections", 0)],
+            ["Motorcycle Noise Rejections", stats.get("motorcycle_rejections", 0)],
             [],
-            ["Species Breakdown"],
+            ["Bird Species Breakdown"],
             ["Species Name", "Confirmed Count"]
         ]
 
@@ -58,18 +62,24 @@ class ScareXReportGenerator:
 
         rows.extend([
             [],
-            ["Recent Detection & Decision Logs"],
-            ["Event ID", "Timestamp", "Species", "Source", "Confidence", "Deterrence", "Motor", "Reason"]
+            ["--- MODULE B: TOMATO CROP MONITORING ---"],
+            ["Total Tomatoes Counted", tomato_metrics.get("total_tomatoes", 0) if tomato_metrics else 0],
+            ["Fully Ripened Count", tomato_metrics.get("fully_ripened_count", 0) if tomato_metrics else 0],
+            ["Half Ripened Count", tomato_metrics.get("half_ripened_count", 0) if tomato_metrics else 0],
+            ["Green Tomato Count", tomato_metrics.get("green_count", 0) if tomato_metrics else 0],
+            ["Fully Ripened %", tomato_metrics.get("fully_ripened_pct", 0.0) if tomato_metrics else 0.0],
+            ["Average Confidence", tomato_metrics.get("average_confidence", 0.0) if tomato_metrics else 0.0],
+            [],
+            ["Row-Wise Crop Priority Statistics"],
+            ["Row ID", "Tomato Count", "Fully Ripened", "Half Ripened", "Green", "Priority Level", "Rationale"]
         ])
 
-        for h in history:
-            rows.append([
-                h.get("event_id"), h.get("timestamp"), h.get("display_name"),
-                h.get("source"), f"{int(h.get('confidence',0)*100)}%",
-                "ON" if h.get("deterrence_triggered") else "OFF",
-                "ON" if h.get("motor_state") else "OFF",
-                h.get("reason")
-            ])
+        if rows_stats:
+            for r in rows_stats:
+                rows.append([
+                    r.get("row_id"), r.get("tomato_count"), r.get("fully_ripened_count"),
+                    r.get("half_ripened_count"), r.get("green_count"), r.get("priority"), r.get("reason")
+                ])
 
         for p in [latest_file, dated_file]:
             with open(p, "w", newline="", encoding="utf-8") as f:
@@ -79,7 +89,7 @@ class ScareXReportGenerator:
         logger.info(f"[Reports] Generated CSV report: {latest_file}")
         return latest_file
 
-    def generate_pdf(self, stats, history, test_logs, timestamp_str):
+    def generate_pdf(self, stats, history, crop_states, tomato_metrics, crop_state, rows_stats, timestamp_str):
         latest_file = self.reports_dir / "latest_report.pdf"
         dated_file = self.reports_dir / f"scarex_report_{timestamp_str}.pdf"
 
@@ -90,10 +100,10 @@ class ScareXReportGenerator:
                 def header(self):
                     self.set_font("Arial", "B", 15)
                     self.set_text_color(255, 94, 54)
-                    self.cell(0, 10, "ScareX Autonomous Bird Deterrence & Sound Filtering Report", 0, 1, "C")
+                    self.cell(0, 10, "ScareX Crop Protection & Tomato Monitoring Report", 0, 1, "C")
                     self.set_font("Arial", "I", 9)
                     self.set_text_color(100, 100, 100)
-                    self.cell(0, 5, "Raspberry Pi 5 6-Class Bird Recognition & Sound Rejection System", 0, 1, "C")
+                    self.cell(0, 5, "Raspberry Pi 5 Bird Deterrence & Crop Condition Analysis Platform", 0, 1, "C")
                     self.ln(5)
 
                 def footer(self):
@@ -103,51 +113,48 @@ class ScareXReportGenerator:
 
             pdf = ScareXPDF()
             pdf.add_page()
-            pdf.set_font("Arial", "", 10)
 
-            # Executive Summary
+            # Executive Overview
             pdf.set_font("Arial", "B", 11)
-            pdf.cell(0, 7, "1. Executive Telemetry & Sound Filtering Summary", 0, 1, "L")
+            pdf.cell(0, 7, "1. Executive Telemetry Overview", 0, 1, "L")
             pdf.set_font("Arial", "", 10)
-            pdf.cell(0, 6, f"Report Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", 0, 1)
-            pdf.cell(0, 6, f"Total Confirmed Bird Intrusions: {stats.get('total_birds_confirmed', 0)}", 0, 1)
-            pdf.cell(0, 6, f"Total Deterrence Audio & Motor Triggers: {stats.get('total_deterrence_triggers', 0)}", 0, 1)
+            pdf.cell(0, 6, f"Generated On: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", 0, 1)
+            pdf.cell(0, 6, f"Confirmed Bird Intrusions: {stats.get('total_birds_confirmed', 0)}", 0, 1)
+            pdf.cell(0, 6, f"Deterrence Audio & Motor Triggers: {stats.get('total_deterrence_triggers', 0)}", 0, 1)
             pdf.cell(0, 6, f"Motorcycle Engine Noise Rejections: {stats.get('motorcycle_rejections', 0)}", 0, 1)
             pdf.ln(4)
 
-            # Species Breakdown Table
+            # Module B Crop Condition
             pdf.set_font("Arial", "B", 11)
-            pdf.cell(0, 7, "2. 6-Class Bird Species Detection Breakdown", 0, 1, "L")
-            pdf.set_font("Arial", "B", 9)
-            pdf.set_fill_color(230, 230, 230)
-            pdf.cell(100, 6, "Bird Species", 1, 0, "L", True)
-            pdf.cell(80, 6, "Confirmed Count", 1, 1, "C", True)
+            pdf.cell(0, 7, "2. Tomato Crop Condition State Analysis", 0, 1, "L")
+            pdf.set_font("Arial", "", 10)
+            if crop_state:
+                pdf.cell(0, 6, f"Current Crop Condition: {crop_state.get('crop_state', 'N/A')}", 0, 1)
+                pdf.cell(0, 6, f"Condition Rationale: {crop_state.get('reason', 'N/A')}", 0, 1)
+                pdf.cell(0, 6, f"Recommendation: {crop_state.get('recommendation', 'N/A')}", 0, 1)
+            if tomato_metrics:
+                pdf.cell(0, 6, f"Maturity Breakdown: Fully Ripened: {tomato_metrics.get('fully_ripened_pct')}% | Half: {tomato_metrics.get('half_ripened_pct')}% | Green: {tomato_metrics.get('green_pct')}%", 0, 1)
+            pdf.ln(4)
 
-            pdf.set_font("Arial", "", 9)
-            for sp_name in ["House Sparrow", "Common Myna", "Crow", "Parrot", "Pigeon", "Peacock"]:
-                count = stats.get("species_breakdown", {}).get(sp_name, 0)
-                pdf.cell(100, 6, f"  {sp_name}", 1, 0, "L")
-                pdf.cell(80, 6, str(count), 1, 1, "C")
+            # Row Priority Table
+            if rows_stats:
+                pdf.set_font("Arial", "B", 11)
+                pdf.cell(0, 7, "3. Row-Wise Crop Priority Statistics", 0, 1, "L")
+                pdf.set_font("Arial", "B", 9)
+                pdf.set_fill_color(230, 230, 230)
+                pdf.cell(20, 6, "Row ID", 1, 0, "C", True)
+                pdf.cell(30, 6, "Tomatoes", 1, 0, "C", True)
+                pdf.cell(30, 6, "Fully Ripened", 1, 0, "C", True)
+                pdf.cell(30, 6, "Priority", 1, 0, "C", True)
+                pdf.cell(70, 6, "Rationale", 1, 1, "L", True)
 
-            pdf.ln(5)
-
-            # Decision History Log Table
-            pdf.set_font("Arial", "B", 11)
-            pdf.cell(0, 7, "3. Decision Engine Priority & Reason Logs", 0, 1, "L")
-            pdf.set_font("Arial", "B", 8)
-            pdf.cell(20, 6, "Event ID", 1, 0, "C", True)
-            pdf.cell(30, 6, "Source", 1, 0, "C", True)
-            pdf.cell(40, 6, "Species", 1, 0, "C", True)
-            pdf.cell(20, 6, "Deterrence", 1, 0, "C", True)
-            pdf.cell(70, 6, "Reason / Decision", 1, 1, "L", True)
-
-            pdf.set_font("Arial", "", 8)
-            for h in history[:10]:
-                pdf.cell(20, 5, str(h.get("event_id")), 1, 0, "C")
-                pdf.cell(30, 5, str(h.get("source")), 1, 0, "C")
-                pdf.cell(40, 5, str(h.get("display_name"))[:20], 1, 0, "C")
-                pdf.cell(20, 5, "ON" if h.get("deterrence_triggered") else "OFF", 1, 0, "C")
-                pdf.cell(70, 5, str(h.get("reason"))[:45], 1, 1, "L")
+                pdf.set_font("Arial", "", 8)
+                for r in rows_stats:
+                    pdf.cell(20, 5, f"Row {r.get('row_id')}", 1, 0, "C")
+                    pdf.cell(30, 5, str(r.get("tomato_count")), 1, 0, "C")
+                    pdf.cell(30, 5, f"{r.get('fully_ripened_count')} ({r.get('fully_ripened_pct')}%)", 1, 0, "C")
+                    pdf.cell(30, 5, str(r.get("priority")), 1, 0, "C")
+                    pdf.cell(70, 5, str(r.get("reason"))[:45], 1, 1, "L")
 
             for p in [latest_file, dated_file]:
                 pdf.output(str(p))
@@ -156,8 +163,8 @@ class ScareXReportGenerator:
             return latest_file
 
         except Exception as e:
-            logger.warning(f"[Reports] FPDF generation error (text fallback used): {e}")
+            logger.warning(f"[Reports] FPDF error (text fallback used): {e}")
             txt_file = self.reports_dir / "latest_report.txt"
             with open(txt_file, "w") as f:
-                f.write(f"ScareX Telemetry Report\nConfirmed Birds: {stats.get('total_birds_confirmed')}\nMotorcycle Rejections: {stats.get('motorcycle_rejections')}\n")
+                f.write(f"ScareX Combined Telemetry Report\nBirds Confirmed: {stats.get('total_birds_confirmed')}\nCrop State: {crop_state.get('crop_state') if crop_state else 'N/A'}\n")
             return txt_file

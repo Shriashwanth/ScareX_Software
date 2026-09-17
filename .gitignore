@@ -10,6 +10,8 @@ ENV/
 
 # Database & Uploads
 data/*.db
+data/mock_audio/*.wav
+!data/mock_audio/.gitkeep
 data/detections/*
 !data/detections/.gitkeep
 data/reports/*.pdf

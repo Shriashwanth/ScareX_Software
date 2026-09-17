@@ -2,6 +2,7 @@ import os
 import time
 import logging
 from pathlib import Path
+from datetime import datetime
 from flask import Flask, render_template, Response, jsonify, request, send_file, werkzeug
 
 try:
@@ -9,6 +10,10 @@ try:
     from ScareX.camera.detector import CameraBirdDetector
     from ScareX.audio.real_audio import RealAudioClassifier
     from ScareX.audio.mock_audio import MockAudioGenerator
+    from ScareX.tomato.detector import TomatoDetector
+    from ScareX.tomato.maturity import TomatoMaturityAnalyzer
+    from ScareX.tomato.crop_state import TomatoCropStateEngine
+    from ScareX.tomato.row_priority import TomatoRowPriorityEngine
     from ScareX.deterrence.decision_engine import CentralDecisionEngine
     from ScareX.deterrence.actuator import DeterrenceActuatorController
     from ScareX.deterrence.multimodal import MultimodalFusionEngine
@@ -19,6 +24,10 @@ except ImportError:
     from camera.detector import CameraBirdDetector
     from audio.real_audio import RealAudioClassifier
     from audio.mock_audio import MockAudioGenerator
+    from tomato.detector import TomatoDetector
+    from tomato.maturity import TomatoMaturityAnalyzer
+    from tomato.crop_state import TomatoCropStateEngine
+    from tomato.row_priority import TomatoRowPriorityEngine
     from deterrence.decision_engine import CentralDecisionEngine
     from deterrence.actuator import DeterrenceActuatorController
     from deterrence.multimodal import MultimodalFusionEngine
@@ -33,18 +42,27 @@ static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
-# Initialize core system singletons
+# Singletons
 db_manager = ScareXDatabaseManager()
 camera_detector = CameraBirdDetector()
 real_audio_classifier = RealAudioClassifier()
 mock_audio_generator = MockAudioGenerator()
+
+# Module B Tomato Singletons
+tomato_detector = TomatoDetector()
+maturity_analyzer = TomatoMaturityAnalyzer()
+crop_state_engine = TomatoCropStateEngine()
+row_priority_engine = TomatoRowPriorityEngine()
+
+# Deterrence & Fusion Singletons
 decision_engine = CentralDecisionEngine()
 actuator = DeterrenceActuatorController()
 fusion_engine = MultimodalFusionEngine()
 report_generator = ScareXReportGenerator(db_manager)
 
-# Global State Containers
+# Global State
 latest_camera_dets = []
+latest_tomato_dets = []
 latest_audio_res = {"status": "success", "is_bird": False, "species": "none", "display_name": "No sound", "confidence": 0.0}
 camera_cap = None
 camera_connected = False
@@ -70,32 +88,38 @@ def init_camera():
 
 init_camera()
 
+def process_media_item(module, source, model_version, conf, status="success", err_msg=""):
+    """Unified Media Processing Layer standard schema."""
+    pred_mode = "Real Inference" if source in ["Camera", "Image", "Video", "Real Audio"] else "Demo / Synthetic"
+    return {
+        "module": module,
+        "source": source,
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "model_version": model_version,
+        "prediction_mode": pred_mode,
+        "confidence": conf,
+        "status": status,
+        "error_message": err_msg
+    }
+
 def generate_mjpeg_stream():
-    global latest_camera_dets
+    global latest_camera_dets, latest_tomato_dets
     import cv2
     while True:
         if camera_cap and camera_connected:
             ret, frame = camera_cap.read()
             if ret and frame is not None:
-                dets, counts, ann_frame = camera_detector.detect_frame(frame)
-                latest_camera_dets = dets
+                # 1. Module A Bird Detection
+                bird_dets, _, ann_frame = camera_detector.detect_frame(frame)
+                latest_camera_dets = bird_dets
 
-                # Run decision evaluation
-                decision = decision_engine.evaluate({"detections": dets}, latest_audio_res)
+                # 2. Module B Tomato Detection
+                tom_dets, tom_counts, _ = tomato_detector.detect_frame(frame)
+                latest_tomato_dets = tom_dets
+
+                # Decision engine evaluation
+                decision = decision_engine.evaluate({"detections": bird_dets}, latest_audio_res)
                 actuator.update_actuators(decision)
-
-                # Log event if deterrence state changes
-                if decision["deterrence_active"]:
-                    sp = decision["primary_species"]
-                    db_manager.log_event(
-                        species=sp, display_name=decision["display_name"],
-                        confidence=0.90, source="Camera", prediction_mode="Real Inference",
-                        bird_confirmed=True, deterrence_triggered=True,
-                        motor_state=decision["motor_active"], speaker_state=decision["speaker_active"],
-                        mock_mode=False, manual_test_mode=decision["manual_test_mode"],
-                        emergency_stop=decision["emergency_stop"], reason=decision["reason"],
-                        model_type=camera_detector.backend
-                    )
 
                 ret_enc, jpeg = cv2.imencode(".jpg", ann_frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
                 if ret_enc:
@@ -104,7 +128,7 @@ def generate_mjpeg_stream():
                     time.sleep(0.04)
                     continue
 
-        # Fallback blank frame stream
+        # Blank stream fallback
         import numpy as np
         blank = np.zeros((480, 640, 3), dtype=np.uint8)
         cv2.putText(blank, "ScareX Camera Offline / Reconnecting...", (100, 240), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 255, 255), 2)
@@ -127,8 +151,15 @@ def api_status():
     fusion = fusion_engine.fuse_predictions(latest_camera_dets, latest_audio_res)
     stats = db_manager.get_summary_stats()
 
+    # Module B Tomato Telemetry
+    tom_counts = tomato_detector.count_by_maturity(latest_tomato_dets)
+    tom_metrics = maturity_analyzer.analyze_detections(latest_tomato_dets, tom_counts)
+    crop_state = crop_state_engine.evaluate_crop_state(tom_metrics, camera_connected=camera_connected, model_available=tomato_detector.backend != "none")
+    rows_stats = row_priority_engine.evaluate_rows(latest_tomato_dets)
+
     model_health = {
-        "camera_model": camera_detector.backend != "none",
+        "bird_camera_model": camera_detector.backend != "none",
+        "tomato_camera_model": tomato_detector.backend != "none",
         "audio_model": real_audio_classifier.backend != "unavailable",
         "mock_audio_gen": True,
         "database": True,
@@ -141,16 +172,79 @@ def api_status():
         "decision": decision,
         "fusion": fusion,
         "telemetry": stats,
+        "tomato_telemetry": {
+            "counts": tom_counts,
+            "metrics": tom_metrics,
+            "crop_state": crop_state,
+            "rows_stats": rows_stats
+        },
         "model_health": model_health,
         "controls": {
             "emergency_stop": decision_engine.emergency_stop,
             "mute_mode": decision_engine.mute_mode,
             "manual_test_mode": decision_engine.manual_test_mode,
             "vision_threshold": camera_detector.conf_threshold,
+            "tomato_threshold": tomato_detector.conf_threshold,
             "audio_threshold": real_audio_classifier.conf_threshold
         }
     })
 
+@app.route("/api/history")
+def api_history():
+    bird_history = db_manager.get_recent_history(limit=25)
+    tomato_history = db_manager.get_recent_tomatoes(limit=25)
+    crop_states = db_manager.get_recent_crop_states(limit=10)
+    return jsonify({
+        "status": "success",
+        "bird_history": bird_history,
+        "tomato_history": tomato_history,
+        "crop_states": crop_states
+    })
+
+# Module B — Tomato Detection Endpoints
+@app.route("/api/tomato/detect/image", methods=["POST"])
+def api_tomato_detect_image():
+    if "file" not in request.files:
+        return jsonify({"error": "No image file provided"}), 400
+
+    file = request.files["file"]
+    upload_dir = Path(config.detections_dir)
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    file_path = upload_dir / f"upload_tomato_{int(time.time())}_{werkzeug.utils.secure_filename(file.filename)}"
+    file.save(str(file_path))
+
+    dets, counts, _ = tomato_detector.detect_image_file(str(file_path))
+    metrics = maturity_analyzer.analyze_detections(dets, counts)
+    crop_state = crop_state_engine.evaluate_crop_state(metrics, camera_connected=True, model_available=True)
+    rows_stats = row_priority_engine.evaluate_rows(dets)
+
+    # Log to SQLite
+    db_manager.log_crop_state(crop_state, metrics)
+    db_manager.log_row_stats(rows_stats)
+
+    for d in dets:
+        db_manager.log_tomato_event(
+            source="Image Upload", class_name=d["class_name"],
+            display_name=d["display_name"], confidence=d["confidence"],
+            bbox=d["bbox"], row_id=d["row_id"], image_path=str(file_path)
+        )
+
+    media_meta = process_media_item(
+        module="tomato", source="Image", model_version=tomato_detector.backend,
+        conf=metrics.get("average_confidence", 0.0)
+    )
+
+    return jsonify({
+        "status": "success",
+        "media_metadata": media_meta,
+        "detections": dets,
+        "counts": counts,
+        "metrics": metrics,
+        "crop_state": crop_state,
+        "rows_stats": rows_stats
+    })
+
+# Module A — Bird Detection & Audio Endpoints
 @app.route("/api/detect/image", methods=["POST"])
 def api_detect_image():
     if "file" not in request.files:
@@ -175,11 +269,16 @@ def api_detect_image():
         bird_confirmed=len(dets) > 0, deterrence_triggered=decision["deterrence_active"],
         motor_state=decision["motor_active"], speaker_state=decision["speaker_active"],
         mock_mode=False, manual_test_mode=decision["manual_test_mode"],
-        emergency_stop=decision["emergency_stop"], reason=decision["reason"]
+        emergency_stop=decision["emergency_stop"], reason=decision["reason"], module="bird"
+    )
+
+    media_meta = process_media_item(
+        module="bird", source="Image", model_version=camera_detector.backend, conf=best_conf
     )
 
     return jsonify({
         "status": "success",
+        "media_metadata": media_meta,
         "detections": dets,
         "counts": counts,
         "decision": decision
@@ -188,7 +287,6 @@ def api_detect_image():
 @app.route("/api/detect/audio", methods=["POST"])
 def api_detect_audio():
     global latest_audio_res
-
     if "file" not in request.files:
         return jsonify({"error": "No audio file provided"}), 400
 
@@ -209,11 +307,16 @@ def api_detect_audio():
         bird_confirmed=res.get("is_bird", False), deterrence_triggered=decision["deterrence_active"],
         motor_state=decision["motor_active"], speaker_state=decision["speaker_active"],
         mock_mode=False, manual_test_mode=decision["manual_test_mode"],
-        emergency_stop=decision["emergency_stop"], reason=decision["reason"]
+        emergency_stop=decision["emergency_stop"], reason=decision["reason"], module="bird"
+    )
+
+    media_meta = process_media_item(
+        module="bird", source="Real Audio", model_version=real_audio_classifier.backend, conf=res.get("confidence", 0.0)
     )
 
     return jsonify({
         "status": "success",
+        "media_metadata": media_meta,
         "audio_result": res,
         "decision": decision
     })
@@ -251,7 +354,7 @@ def api_generate_mock_audio():
         bird_confirmed=res["is_bird"], deterrence_triggered=decision["deterrence_active"],
         motor_state=decision["motor_active"], speaker_state=decision["speaker_active"],
         mock_mode=True, manual_test_mode=decision["manual_test_mode"],
-        emergency_stop=decision["emergency_stop"], reason=decision["reason"]
+        emergency_stop=decision["emergency_stop"], reason=decision["reason"], module="bird"
     )
 
     return jsonify({
@@ -260,6 +363,7 @@ def api_generate_mock_audio():
         "decision": decision
     })
 
+# Control Endpoints
 @app.route("/api/controls/emergency_stop", methods=["POST"])
 def api_emergency_stop():
     data = request.json or {}
@@ -314,23 +418,14 @@ def api_run_manual_test():
         actual = "Deterrence OFF" if not decision["deterrence_active"] else "Deterrence ON"
         status = "PASS" if not decision["deterrence_active"] else "FAIL"
 
-    elif test_type == "test_mock_audio_normal":
-        input_desc = "Test Mock Audio (Normal Mode)"
-        expected = "Deterrence OFF (Ignored)"
-        aud = {"status": "success", "is_bird": True, "species": "peacock", "display_name": "Peacock", "confidence": 0.95, "is_mock": True}
-        decision_engine.manual_test_mode = False
-        decision = decision_engine.evaluate({}, aud)
-        actual = "Deterrence OFF" if not decision["deterrence_active"] else "Deterrence ON"
-        status = "PASS" if not decision["deterrence_active"] else "FAIL"
-
-    elif test_type == "test_emergency_stop":
-        input_desc = "Test Emergency Stop Priority"
-        expected = "All Actuators OFF"
-        decision_engine.emergency_stop = True
-        test_cam_dets = [{"species": "crow", "display_name": "Crow", "confidence": 0.99, "bbox": [50, 50, 200, 200]}]
-        decision = decision_engine.evaluate({"detections": test_cam_dets}, {})
-        actual = "All Actuators OFF" if not decision["deterrence_active"] else "Actuators ON"
-        status = "PASS" if not decision["deterrence_active"] else "FAIL"
+    elif test_type == "test_tomato_harvest":
+        input_desc = "Test Tomato Harvest Ready State"
+        expected = "State 3 — Harvest Ready"
+        mock_tom_counts = {"fully_ripened": 15, "half_ripened": 5, "green": 5, "total": 25}
+        metrics = maturity_analyzer.analyze_detections([], mock_tom_counts)
+        crop_state = crop_state_engine.evaluate_crop_state(metrics)
+        actual = crop_state["crop_state"]
+        status = "PASS" if "Harvest Ready" in actual else "FAIL"
 
     db_manager.log_manual_test(
         input_type=input_desc, expected_result=expected, actual_result=actual,
@@ -349,10 +444,18 @@ def api_run_manual_test():
 
 @app.route("/api/reports/generate", methods=["POST"])
 def api_generate_reports():
-    res = report_generator.generate_all_reports()
+    tom_counts = tomato_detector.count_by_maturity(latest_tomato_dets)
+    tom_metrics = maturity_analyzer.analyze_detections(latest_tomato_dets, tom_counts)
+    crop_state = crop_state_engine.evaluate_crop_state(tom_metrics)
+    rows_stats = row_priority_engine.evaluate_rows(latest_tomato_dets)
+
+    res = report_generator.generate_all_reports(
+        tomato_metrics=tom_metrics, crop_state=crop_state, rows_stats=rows_stats
+    )
+
     return jsonify({
         "status": "success",
-        "message": "Reports generated successfully",
+        "message": "Unified PDF & CSV reports generated successfully",
         "reports": {
             "pdf": "/api/reports/download/pdf",
             "csv": "/api/reports/download/csv"
@@ -372,5 +475,5 @@ def api_download_report(file_type):
         return jsonify({"error": "Report file not found"}), 404
 
 if __name__ == "__main__":
-    logger.info(f"[App] Starting ScareX Web Server on http://{config.dashboard_host}:{config.flask_port}")
+    logger.info(f"[App] Starting Integrated ScareX Web Platform on http://{config.dashboard_host}:{config.flask_port}")
     app.run(host=config.dashboard_host, port=config.flask_port, debug=False, threaded=True)
