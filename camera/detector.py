@@ -26,22 +26,22 @@ class CameraBirdDetector:
         self._init_model()
 
     def _init_model(self):
-        coco_pt = Path("yolov8n.pt")
+        yolo11_pt = Path("yolo11n.pt")
         pt_path = Path(config.vision_model_path)
         fallback_pt = pt_path.parent / "best.pt"
         ncnn_dir = Path(config.vision_ncnn_path)
 
-        # Prioritize custom trained bird models first
-        for p in [pt_path, fallback_pt]:
+        # Prioritize YOLOv11 bird detector for universal detection
+        for p in [yolo11_pt, pt_path, fallback_pt]:
             if p.exists():
                 try:
                     from ultralytics import YOLO
                     self.model = YOLO(str(p))
-                    self.backend = "pytorch"
-                    logger.info(f"[CameraDetector] Loaded custom YOLO bird model from {p}")
+                    self.backend = "yolo11_coco" if p == yolo11_pt else "pytorch"
+                    logger.info(f"[CameraDetector] Loaded YOLO bird model from {p}")
                     return
                 except Exception as e:
-                    logger.warning(f"[CameraDetector] Error loading custom model {p}: {e}")
+                    logger.warning(f"[CameraDetector] Error loading model {p}: {e}")
 
         if ncnn_dir.exists():
             try:
@@ -53,11 +53,12 @@ class CameraBirdDetector:
             except Exception as e:
                 logger.warning(f"[CameraDetector] Could not load NCNN model: {e}")
 
+        coco_pt = Path("yolov8n.pt")
         if coco_pt.exists():
             try:
                 from ultralytics import YOLO
                 self.model = YOLO("yolov8n.pt")
-                self.backend = "pytorch_coco"
+                self.backend = "yolo11_coco"
                 logger.info("[CameraDetector] Fallback COCO YOLO bird detector initialized.")
                 return
             except Exception as e:
@@ -65,12 +66,12 @@ class CameraBirdDetector:
 
         try:
             from ultralytics import YOLO
-            self.model = YOLO("yolov8n.pt")
-            self.backend = "pytorch_coco"
-            logger.info("[CameraDetector] Pre-trained YOLO bird detector initialized.")
+            self.model = YOLO("yolo11n.pt")
+            self.backend = "yolo11_coco"
+            logger.info("[CameraDetector] Pre-trained YOLO11 bird detector initialized.")
             return
         except Exception as e:
-            logger.warning(f"[CameraDetector] Could not load YOLO fallback: {e}")
+            logger.warning(f"[CameraDetector] Could not load YOLO11 fallback: {e}")
 
         self.backend = "demo_heuristic"
         logger.info("[CameraDetector] Model files not found. Initialized 6-Class Heuristic Detection Engine.")
