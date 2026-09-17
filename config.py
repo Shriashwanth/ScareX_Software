@@ -29,7 +29,7 @@ class ScareXConfig:
             "audio_conf_threshold": 0.45,
             "iou_threshold": 0.45,
             "min_consecutive_detections": 1,
-            "cooldown_sec": 5.0,
+            "cooldown_sec": 0.0,
             "deterrence_duration_sec": 3.0,
             "max_repeat_triggers": 5,
             "manual_test_mode": False,

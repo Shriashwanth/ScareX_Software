@@ -61,17 +61,30 @@ class DeterrenceActuatorController:
                 self.stop_deterrence_sound()
 
     def play_deterrence_sound(self, species=None):
-        # Refresh sound files list (.mp3 first, then .wav)
-        self.sound_files = sorted(list(self.sound_dir.glob("*.mp3")) + list(self.sound_dir.glob("*.wav")))
+        # Refresh sound files list
+        self.sound_files = sorted(list(self.sound_dir.glob("*.wav")) + list(self.sound_dir.glob("*.mp3")))
         if not self.sound_files:
             logger.warning(f"[Actuator] No deterrence sound files found in {self.sound_dir}")
             return
 
-        # Select sound file: rotate dynamically based on species or current timestamp
-        idx = int(time.time()) % len(self.sound_files)
-        sound_file = self.sound_files[idx]
+        sound_file = self.sound_files[0]
+        sp_lower = str(species).lower() if species else ""
 
-        logger.info(f"[Actuator] Playing Deterrence Audio ({species or 'General'}): {sound_file.name}")
+        # Map species to authentic agricultural bird deterrence sounds
+        if "crow" in sp_lower:
+            matched = [f for f in self.sound_files if "hawk" in f.name.lower() or "screech" in f.name.lower()]
+            if matched: sound_file = matched[0]
+        elif "sparrow" in sp_lower or "myna" in sp_lower:
+            matched = [f for f in self.sound_files if "falcon" in f.name.lower() or "hunter" in f.name.lower()]
+            if matched: sound_file = matched[0]
+        elif "pigeon" in sp_lower:
+            matched = [f for f in self.sound_files if "distress" in f.name.lower() or "alarm" in f.name.lower()]
+            if matched: sound_file = matched[0]
+        elif "peacock" in sp_lower or "parrot" in sp_lower:
+            matched = [f for f in self.sound_files if "sonic" in f.name.lower() or "cannon" in f.name.lower()]
+            if matched: sound_file = matched[0]
+
+        logger.info(f"[Actuator] Playing Bio-Acoustic Deterrence Audio ({species or 'General'}): {sound_file.name}")
         self.is_playing_sound = True
         self.speaker_state = True
 
