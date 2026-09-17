@@ -40,9 +40,10 @@ class RealAudioClassifier:
             except Exception as e:
                 logger.warning(f"[RealAudio] Failed to load PyTorch audio model: {e}")
 
-        # Model is unavailable / untrained
-        self.backend = "unavailable"
-        logger.info("[RealAudio] Audio model unavailable.")
+        # Use spectral feature heuristic backend when weights are missing
+        self.backend = "spectral_heuristic"
+        logger.info("[RealAudio] PyTorch model weights missing. Spectral feature audio classifier active.")
+
 
     def update_threshold(self, threshold):
         self.conf_threshold = float(threshold)
